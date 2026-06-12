@@ -20,7 +20,15 @@ const firebaseConfig = {
  
  // 3. Escutando o banco de dados em tempo real
  document.addEventListener('DOMContentLoaded', () => {
-     pedidosRef.orderBy("id", "asc").onSnapshot((snapshot) => {
+     const dataInput = document.getElementById('data-relatorio');
+     if (dataInput) {
+         const hoje = new Date();
+         const dia = String(hoje.getDate()).padStart(2, '0');
+         const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+         const ano = hoje.getFullYear();
+         dataInput.value = `${ano}-${mes}-${dia}`;
+	 }
+	 pedidosRef.orderBy("id", "asc").onSnapshot((snapshot) => {
          pedidos = [];
          snapshot.forEach((doc) => {
              pedidos.push({ firebaseId: doc.id, ...doc.data() });
@@ -36,7 +44,8 @@ const firebaseConfig = {
      const valor = parseFloat(document.getElementById('valor').value);
      const pagamento = document.getElementById('pagamento').value;
      const appOrigem = document.getElementById('app-origem').value;
- 
+	 const dataSelecionada = document.getElementById('data-relatorio').value;
+	 
      if (!endereco || isNaN(valor)) {
          alert("Preencha o endereço e o valor corretamente.");
          return;
@@ -47,6 +56,7 @@ const firebaseConfig = {
  
      const pedido = {
          id: Date.now(),
+		 data: dataSelecionada,
          endereco: endereco,
          valor: valor,
 		 gorjeta: 0,
@@ -105,17 +115,31 @@ const firebaseConfig = {
  
      let totalVal = 0;
      let totalEntregas = 0;
+
+	 const dataSelecionada = document.getElementById('data-relatorio').value;
+     
+     const pedidosDoDia = pedidos.filter(p => {
+         // Se o pedido for de dias atrás e não tiver data, tratamos como de hoje para não dar erro
+         const hoje = new Date();
+         const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+         const dataPedido = p.data || hojeStr;
+         
+         return dataPedido === dataSelecionada;
+     });
  
-     pedidos.forEach(p => {
+     pedidosDoDia.forEach(p => {
          totalVal += p.valor;
          totalEntregas++;
  
          const appCores = {
-             'Ifood': '#ea1d2c',
-             'Delivery Much': '#ff7a00',
-             'ComprAqui': '#0097ff',
-             'Outros': '#888'
-         };
+            'Ifood': '#ea1d2c',
+            'Delivery Much': '#ff7a00',
+            'ComprAqui': '#0097ff',
+			'Whatsapp': '#2e7e4e',
+			'Pedidos 10': '#ffe412',
+			'Aiq Fome': '#620c84',
+            'Outros': '#888'
+        };
  
          const item = document.createElement('div');
          item.className = `pedido-item ${p.entregue ? 'entregue' : ''}`;
@@ -325,10 +349,47 @@ function toggleTema() {
     }
 }
 
+// Abre o Resumo Mensal (Visão Motoboy)
 function abrirRelatorios() {
-    alert("Em breve! O sistema de salvamento de fechamento diário será implementado em breve na área de relatórios.");
-    toggleMenu(); // Fecha o menu ao clicar
+    toggleMenu(); // Esconde o menu lateral
+
+    const hoje = new Date();
+    const mesAtual = String(hoje.getMonth() + 1).padStart(2, '0');
+    const anoAtual = hoje.getFullYear();
+    const diaAtual = String(hoje.getDate()).padStart(2, '0');
+    
+    const filtroMes = `${anoAtual}-${mesAtual}`; 
+    // Data de "segurança" para pedidos antigos que não tinham data salva
+    const hojeStr = `${anoAtual}-${mesAtual}-${diaAtual}`;
+
+    let totalEntregasMes = 0;
+    let totalValorMes = 0;
+
+    pedidos.forEach(p => {
+        // TRUQUE: Se o pedido for antigo e não tiver data, o sistema usa a data de hoje para não ignorá-lo
+        const dataPedido = p.data || hojeStr;
+
+        if (dataPedido.startsWith(filtroMes)) {
+            totalEntregasMes++;
+            // Garante que o valor seja somado como número (caso tenha bugado no banco)
+            totalValorMes += parseFloat(p.valor || 0); 
+        }
+    });
+
+    // Atualiza o HTML
+    document.getElementById('relatorio-mes-texto').innerText = `${mesAtual}/${anoAtual}`;
+    document.getElementById('relatorio-total-entregas').innerText = totalEntregasMes;
+    document.getElementById('relatorio-total-valor').innerText = `R$ ${totalValorMes.toFixed(2).replace('.', ',')}`;
+
+    document.getElementById('modal-relatorios').style.display = 'flex';
 }
+
+
+// Fecha o Resumo Mensal
+function fecharModalRelatorios() {
+    document.getElementById('modal-relatorios').style.display = 'none';
+}
+
 
 // Verifica o tema salvo no celular quando a página carrega
 document.addEventListener('DOMContentLoaded', () => {

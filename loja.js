@@ -16,6 +16,15 @@ let pedidosLoja = [];
 
 // Escuta as alterações no banco em TEMPO REAL
 document.addEventListener('DOMContentLoaded', () => {
+	const dataInput = document.getElementById('loja-data');
+    if (dataInput) {
+        const hoje = new Date();
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const ano = hoje.getFullYear();
+        dataInput.value = `${ano}-${mes}-${dia}`;
+    }
+	
     pedidosRef.orderBy("id", "asc").onSnapshot((snapshot) => {
         pedidosLoja = [];
         snapshot.forEach((doc) => {
@@ -32,14 +41,22 @@ function renderizarLoja() {
     let totalVal = 0;
     let totalEntregas = 0;
 
-    if (pedidosLoja.length === 0) {
-        lista.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Nenhuma entrega hoje ainda.</p>';
+	const dataSelecionada = document.getElementById('loja-data').value;
+    const pedidosDoDia = pedidosLoja.filter(p => {
+        const hoje = new Date();
+        const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+        const dataPedido = p.data || hojeStr;
+        return dataPedido === dataSelecionada;
+    });
+
+    if (pedidosDoDia.length === 0) { // <-- Mude pedidosLoja.length para pedidosDoDia.length
+        lista.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Nenhuma entrega encontrada para esta data.</p>';
         document.getElementById('loja-total-valor').innerText = 'R$ 0,00';
         document.getElementById('loja-total-entregas').innerText = '0';
         return;
-    }
+	}
 
-    pedidosLoja.forEach(p => {
+    pedidosDoDia.forEach(p => {
         // Puxa a gorjeta se existir, senão considera 0
         const gorjeta = p.gorjeta || 0;
         const valorFinal = p.valor + gorjeta;
@@ -51,6 +68,9 @@ function renderizarLoja() {
             'Ifood': '#ea1d2c',
             'Delivery Much': '#ff7a00',
             'ComprAqui': '#0097ff',
+			'Whatsapp': '#2e7e4e',
+			'Pedidos 10': '#ffe412',
+			'Aiq Fome': '#620c84',
             'Outros': '#888'
         };
 
@@ -198,10 +218,45 @@ function toggleTema() {
     }
 }
 
+// Abre o Resumo Mensal (Visão Loja)
 function abrirRelatorios() {
-    alert("Em breve! O sistema de salvamento de fechamento diário será implementado em breve na área de relatórios.");
-    toggleMenu(); // Fecha o menu ao clicar
+    toggleMenu(); // Esconde o menu lateral
+
+    const hoje = new Date();
+    const mesAtual = String(hoje.getMonth() + 1).padStart(2, '0');
+    const anoAtual = hoje.getFullYear();
+    const diaAtual = String(hoje.getDate()).padStart(2, '0');
+    
+    const filtroMes = `${anoAtual}-${mesAtual}`; 
+    const hojeStr = `${anoAtual}-${mesAtual}-${diaAtual}`;
+
+    let totalEntregasMes = 0;
+    let totalValorMes = 0;
+
+    // ATENÇÃO AQUI: Usa 'pedidosLoja' no painel da loja
+    pedidosLoja.forEach(p => {
+        const dataPedido = p.data || hojeStr;
+
+        if (dataPedido.startsWith(filtroMes)) {
+            totalEntregasMes++;
+            totalValorMes += parseFloat(p.valor || 0); 
+        }
+    });
+
+    // Atualiza o HTML
+    document.getElementById('relatorio-mes-texto').innerText = `${mesAtual}/${anoAtual}`;
+    document.getElementById('relatorio-total-entregas').innerText = totalEntregasMes;
+    document.getElementById('relatorio-total-valor').innerText = `R$ ${totalValorMes.toFixed(2).replace('.', ',')}`;
+
+    document.getElementById('modal-relatorios').style.display = 'flex';
 }
+
+
+// Fecha o Resumo Mensal
+function fecharModalRelatorios() {
+    document.getElementById('modal-relatorios').style.display = 'none';
+}
+
 
 // Verifica o tema salvo no celular quando a página carrega
 document.addEventListener('DOMContentLoaded', () => {
