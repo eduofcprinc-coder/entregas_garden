@@ -67,11 +67,7 @@ function renderizarLoja() {
                     <span>💳 ${p.pagamento}</span>
                 </div>
             </div>
-            //<div class="pedido-acoes" style="justify-content: center;">
-                //<button class="btn-action-small" style="background-color: var(--accent); color: black; width: auto; padding: 0 10px; font-weight: bold; border-radius: 6px;" onclick="adicionarGorjeta('${p.firebaseId}')">
-                    //+ GORJETA
-                //</button>
-            //</div>
+            
         `;
         lista.appendChild(item);
     });
