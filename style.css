@@ -1,0 +1,266 @@
+:root {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --accent: #00e676; 
+    --danger: #ff5252;
+    --warning: #ff9100;
+    --blue: #448aff;
+    --radius: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    padding: 15px;
+    padding-bottom: 100px;
+}
+
+header h1 {
+    text-align: center;
+    color: var(--accent);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+/* Formulário e Inputs */
+.form-section {
+    background-color: var(--card-bg);
+    padding: 15px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.input-row { margin-bottom: 10px; }
+.input-row.split { display: flex; gap: 10px; }
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background-color: #2c2c2c;
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: var(--accent);
+}
+
+.add-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--accent);
+    color: #000;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    margin-top: 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+/* Dashboard Fixa */
+.dashboard {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.dash-card {
+    flex: 1;
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: var(--radius);
+    text-align: center;
+    border-left: 4px solid var(--accent);
+}
+
+.dash-title {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.dash-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+/* ------------------------------------- */
+/* ESTILOS DOS CARTÕES DE PEDIDO (NOVO)  */
+/* ------------------------------------- */
+
+.lista-pedidos {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pedido-item {
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    border-left: 4px solid #444; /* Borda padrão */
+}
+
+/* Estilo de Pedido Entregue */
+.pedido-item.entregue {
+    opacity: 0.6;
+    border-left: 4px solid var(--accent);
+}
+
+.pedido-info {
+    flex: 1;
+    padding-right: 10px;
+}
+
+.pedido-endereco {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.pedido-detalhes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pedido-hora {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pedido-acoes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-action-small {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-status { background-color: #333; border: 1px solid var(--accent); color: var(--accent); }
+.pedido-item.entregue .btn-status { background-color: var(--accent); color: black; }
+.btn-edit { background-color: var(--warning); }
+.btn-delete { background-color: var(--danger); }
+
+
+/* Botões de Ação Finais (Fixos Embaixo) */
+.action-buttons {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--card-bg);
+    padding: 15px;
+    display: flex;
+    gap: 10px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+    z-index: 100;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.btn-action.export { background-color: var(--blue); }
+.btn-action.clear { background-color: var(--danger); }
+
+/* Modal Genérico */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-body {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: var(--radius);
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+}
+
+.modal-body img {
+    max-width: 100%;
+    border: 1px solid #555;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.btn-modal-action {
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+}
+
+.btn-download { background-color: var(--blue); }
+.btn-share-native { background-color: var(--accent); color: #000; }
+.btn-close { background-color: #555; }
