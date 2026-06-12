@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Controle Motoboy</title>
+    
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>🛵 Minhas Entregas</h1>
+    </header>
+
+    <section class="form-section">
+        <div class="input-row">
+            <input type="text" id="endereco" placeholder="Endereço da entrega (Rua, Número, Bairro)">
+        </div>
+
+        <div class="input-row split">
+            <input type="number" id="valor" placeholder="Valor (R$)" inputmode="decimal" step="0.01">
+        </div>
+
+        <div class="input-row split">
+            <select id="pagamento">
+                <option value="Dinheiro">💵 Dinheiro</option>
+                <option value="Maquina">💳 Maquininha</option>
+                <option value="Pago Online">📱 Pago Online</option>
+            </select>
+            
+            <select id="app-origem">
+                <option value="Ifood">🔴 iFood</option>
+                <option value="Delivery Much">🟠 D. Much</option>
+                <option value="ComprAqui">🔵 ComprAqui</option>
+                <option value="Outros">⚪ Outros</option>
+            </select>
+        </div>
+
+        <button class="add-btn" onclick="adicionarPedido()">ADICIONAR</button>
+    </section>
+
+    <section class="dashboard">
+        <div class="dash-card">
+            <span class="dash-title">Total (R$)</span>
+            <span class="dash-value" id="total-valor">0,00</span>
+        </div>
+        <div class="dash-card">
+            <span class="dash-title">Entregas</span>
+            <span class="dash-value" id="total-entregas">0</span>
+        </div>
+    </section>
+
+    <div id="lista-pedidos" class="lista-pedidos">
+        </div>
+
+    <div class="action-buttons">
+        <button class="btn-action export" onclick="gerarImagem()">
+            <span class="material-icons-round">share</span> Compartilhar
+        </button>
+        <button class="btn-action clear" onclick="limparTudo()">
+            <span class="material-icons-round">delete_sweep</span> Limpar Dia
+        </button>
+    </div>
+
+    <div id="modal" class="modal-overlay">
+        <div class="modal-body">
+            <h3>Relatório Gerado</h3>
+            <div id="img-container"></div>
+            <div class="modal-actions">
+                <button class="btn-modal-action btn-download" onclick="baixarImagem()">Baixar Imagem</button>
+                <button class="btn-modal-action btn-share-native" id="btn-share" onclick="compartilharImagem()">Compartilhar Direto</button>
+                <button class="btn-modal-action btn-close" onclick="fecharModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editor-modal" class="modal-overlay">
+        <div class="modal-body">
+            <h3>✏️ Editar Pedido</h3>
+            
+            <label style="text-align: left; display: block; margin-top: 10px;">Endereço:</label>
+            <input type="text" id="edit-endereco" style="width: 100%; margin-bottom: 10px;">
+            
+            <label style="text-align: left; display: block;">Valor (R$):</label>
+            <input type="number" id="edit-valor" step="0.01" style="width: 100%; margin-bottom: 10px;">
+            
+            <div class="input-row split">
+                <div style="width: 100%;">
+                    <label style="text-align: left; display: block;">Saída:</label>
+                    <input type="time" id="edit-hora-saida" style="width: 100%;">
+                </div>
+                <div style="width: 100%;">
+                    <label style="text-align: left; display: block;">Entrega:</label>
+                    <input type="time" id="edit-hora-entrega" style="width: 100%;">
+                </div>
+            </div>
+
+            <label style="text-align: left; display: block; margin-top: 10px;">Pagamento:</label>
+            <select id="edit-pagamento" style="width: 100%; margin-bottom: 10px;">
+                <option value="Dinheiro">💵 Dinheiro</option>
+                <option value="Maquina">💳 Maquininha</option>
+                <option value="Pago Online">📱 Pago Online</option>
+            </select>
+
+            <label style="text-align: left; display: block;">App:</label>
+            <select id="edit-app" style="width: 100%; margin-bottom: 15px;">
+                <option value="Ifood">🔴 iFood</option>
+                <option value="Delivery Much">🟠 D. Much</option>
+                <option value="ComprAqui">🔵 ComprAqui</option>
+                <option value="Outros">⚪ Outros</option>
+            </select>
+
+            <button class="add-btn" onclick="salvarEdicao()" style="margin-bottom: 10px;">SALVAR ALTERAÇÕES</button>
+            <button class="btn-modal-action btn-close" onclick="fecharEditor()" style="width: 100%;">Cancelar</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
