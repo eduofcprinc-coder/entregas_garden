@@ -66,10 +66,6 @@ function renderizarLoja() {
                     ${gorjeta > 0 ? `<span style="color: var(--accent); font-weight: bold;">+ Gorjeta: R$ ${gorjeta.toFixed(2).replace('.', ',')}</span>` : ''}
                     <span>💳 ${p.pagamento}</span>
                 </div>
-                <div class="pedido-hora">
-                    <span>🕒 Saída: ${p.horaSaida}</span>
-                    ${p.horaEntrega ? `<span>✅ Entregue: ${p.horaEntrega}</span>` : ''}
-                </div>
             </div>
             <div class="pedido-acoes" style="justify-content: center;">
                 <button class="btn-action-small" style="background-color: var(--accent); color: black; width: auto; padding: 0 10px; font-weight: bold; border-radius: 6px;" onclick="adicionarGorjeta('${p.firebaseId}')">
