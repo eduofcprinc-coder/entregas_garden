@@ -158,3 +158,61 @@ function copiarChavePix(botaoClicado) {
         alert("Erro ao copiar. Tente copiar manualmente.");
     });
 }
+
+// ==========================================
+// CONTROLES DO MENU LATERAL E MODO CLARO/ESCURO
+// ==========================================
+
+function toggleMenu() {
+    const menu = document.getElementById('side-menu');
+    const overlay = document.getElementById('menu-overlay');
+    
+    if (menu.classList.contains('open')) {
+        // Fechar menu
+        menu.classList.remove('open');
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.style.display = 'none', 300);
+    } else {
+        // Abrir menu
+        overlay.style.display = 'block';
+        setTimeout(() => overlay.style.opacity = '1', 10);
+        menu.classList.add('open');
+    }
+}
+
+function toggleTema() {
+    const body = document.body;
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+    
+    body.classList.toggle('light-mode');
+    
+    if (body.classList.contains('light-mode')) {
+        localStorage.setItem('tema', 'claro');
+        themeIcon.innerText = 'dark_mode';
+        themeText.innerText = 'Modo Escuro';
+    } else {
+        localStorage.setItem('tema', 'escuro');
+        themeIcon.innerText = 'light_mode';
+        themeText.innerText = 'Modo Claro';
+    }
+}
+
+function abrirRelatorios() {
+    alert("Em breve! O sistema de salvamento de fechamento diário será implementado em breve na área de relatórios.");
+    toggleMenu(); // Fecha o menu ao clicar
+}
+
+// Verifica o tema salvo no celular quando a página carrega
+document.addEventListener('DOMContentLoaded', () => {
+    const temaSalvo = localStorage.getItem('tema');
+    if (temaSalvo === 'claro') {
+        document.body.classList.add('light-mode');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+        if(themeIcon && themeText) {
+            themeIcon.innerText = 'dark_mode';
+            themeText.innerText = 'Modo Escuro';
+        }
+    }
+});
