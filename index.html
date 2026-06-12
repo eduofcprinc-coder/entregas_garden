@@ -12,9 +12,37 @@
 </head>
 <body>
 
-    <header>
+    <header style="margin-bottom: 20px;">
+        <button class="menu-btn" onclick="toggleMenu()">
+            <span class="material-icons-round">menu</span>
+        </button>
         <h1>🛵 Minhas Entregas</h1>
     </header>
+
+    <div id="menu-overlay" class="menu-overlay" onclick="toggleMenu()"></div>
+    <nav id="side-menu" class="side-menu">
+        <div class="menu-header">
+            <h2>Menu</h2>
+            <button onclick="toggleMenu()" class="close-menu-btn">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        
+        <ul class="menu-list">
+            <li class="menu-item" onclick="abrirRelatorios()">
+                <span class="material-icons-round">history</span>
+                Relatórios
+            </li>
+        </ul>
+        
+        <div class="menu-footer">
+            <li class="menu-item" onclick="toggleTema()">
+                <span class="material-icons-round" id="theme-icon">light_mode</span>
+                <span id="theme-text">Modo Claro</span>
+            </li>
+        </div>
+    </nav>
+
 
     <section class="form-section">
         <div class="input-row">
