@@ -12,6 +12,11 @@ const firebaseConfig = {
  firebase.initializeApp(firebaseConfig);
  const db = firebase.firestore();
  const pedidosRef = db.collection("pedidos");
+ const horasRef = db.collection("horas_bar");
+ let horasTrabalhadas = [];
+
+
+
  
  // 2. Variáveis Globais
  let pedidos = [];
@@ -35,6 +40,14 @@ const firebaseConfig = {
          });
          renderizar(); // Atualiza a tela automaticamente
      });
+	horasRef.orderBy("id", "asc").onSnapshot((snapshot) => {
+        horasTrabalhadas = [];
+        snapshot.forEach((doc) => {
+            horasTrabalhadas.push({ firebaseId: doc.id, ...doc.data() });
+        });
+        renderizarHorasMotoboy(); // Atualiza a lista do modal se estiver aberto
+    });
+	 
  });
  
  // --- FUNÇÕES DE BANCO DE DADOS ---
@@ -388,6 +401,107 @@ function abrirRelatorios() {
 // Fecha o Resumo Mensal
 function fecharModalRelatorios() {
     document.getElementById('modal-relatorios').style.display = 'none';
+}
+
+// --- FUNÇÕES DE HORAS BAR (MOTOBOY) ---
+
+function abrirModalHoras() {
+    toggleMenu(); // Fecha o menu lateral
+    
+    // Puxa a mesma data que está selecionada na tela inicial
+    const dataPrincipal = document.getElementById('data-relatorio').value;
+    document.getElementById('horas-data').value = dataPrincipal;
+    
+    // Limpa os campos
+    document.getElementById('horas-qtd').value = '';
+    document.getElementById('horas-valor').value = '';
+    document.getElementById('horas-total-display').innerText = 'R$ 0,00';
+    
+    renderizarHorasMotoboy();
+    document.getElementById('modal-horas').style.display = 'flex';
+}
+
+function fecharModalHoras() {
+    document.getElementById('modal-horas').style.display = 'none';
+}
+
+function calcularTotalHoras() {
+    const tempoStr = document.getElementById('horas-qtd').value; // Ex: "05:05"
+    const valor = parseFloat(document.getElementById('horas-valor').value) || 0;
+    
+    if (tempoStr && valor) {
+        const partes = tempoStr.split(':');
+        const horasDecimal = parseInt(partes[0]) + (parseInt(partes[1]) / 60);
+        document.getElementById('horas-total-display').innerText = `R$ ${(horasDecimal * valor).toFixed(2).replace('.', ',')}`;
+    } else {
+        document.getElementById('horas-total-display').innerText = 'R$ 0,00';
+    }
+}
+
+async function adicionarHoras() {
+    const data = document.getElementById('horas-data').value;
+    const tempoStr = document.getElementById('horas-qtd').value;
+    const valorHora = parseFloat(document.getElementById('horas-valor').value);
+
+    if (!data || !tempoStr || !valorHora) {
+        alert("Preencha todos os campos corretamente.");
+        return;
+    }
+
+    // Converte o relógio (ex: 05:05) para número quebrado (ex: 5.08) para fazer a conta
+    const partes = tempoStr.split(':');
+    const horasInteiras = parseInt(partes[0]);
+    const minutosInteiros = parseInt(partes[1]);
+    const horasDecimal = horasInteiras + (minutosInteiros / 60);
+
+    const registro = {
+        id: Date.now(),
+        data: data,
+        horas: tempoStr,          // Salva "05:05" para mostrar bonito na tela
+        horasDecimal: horasDecimal, // Salva "5.083" escondido para somar o dinheiro
+        valorHora: valorHora,
+        total: horasDecimal * valorHora
+    };
+
+    try {
+        await horasRef.add(registro);
+        document.getElementById('horas-qtd').value = '';
+        document.getElementById('horas-valor').value = '';
+        calcularTotalHoras();
+    } catch (e) {
+        console.error("Erro ao salvar horas:", e);
+    }
+}
+
+
+function renderizarHorasMotoboy() {
+    const lista = document.getElementById('lista-horas-motoboy');
+    if(!lista) return;
+    lista.innerHTML = '';
+    
+    const dataSelecionada = document.getElementById('horas-data').value;
+    const horasDoDia = horasTrabalhadas.filter(h => h.data === dataSelecionada);
+
+    horasDoDia.forEach(h => {
+        const item = document.createElement('div');
+        item.style = "background: #121212; padding: 10px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333;";
+        item.innerHTML = `
+            <div style="text-align: left;">
+                <span style="color: var(--text-secondary); font-size: 0.8rem;">⏱️ Tempo: ${h.horas} (R$ ${h.valorHora.toFixed(2).replace('.', ',')}/h)</span><br>
+                <strong style="color: var(--warning);">R$ ${h.total.toFixed(2).replace('.', ',')}</strong>
+            </div>
+            <button onclick="deletarHora('${h.firebaseId}')" style="background:none; border:none; color: var(--danger); cursor:pointer;">
+                <span class="material-icons-round">delete</span>
+            </button>
+        `;
+        lista.appendChild(item);
+    });
+}
+
+async function deletarHora(id) {
+    if(confirm("Excluir este lançamento de horas?")) {
+        await horasRef.doc(id).delete();
+    }
 }
 
 

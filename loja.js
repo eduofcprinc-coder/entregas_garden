@@ -11,6 +11,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const pedidosRef = db.collection("pedidos");
+const horasRef = db.collection("horas_bar");
+let horasLoja = [];
+
 
 let pedidosLoja = [];
 
@@ -32,69 +35,122 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         renderizarLoja(); 
     });
+	horasRef.orderBy("id", "asc").onSnapshot((snapshot) => {
+        horasLoja = [];
+        snapshot.forEach((doc) => {
+            horasLoja.push({ firebaseId: doc.id, ...doc.data() });
+        });
+        renderizarLoja(); // Recarrega a tela toda quando receber hora nova
+    });
+	
 });
 
 function renderizarLoja() {
     const lista = document.getElementById('lista-pedidos-loja');
+    const listaHoras = document.getElementById('lista-horas-loja');
     lista.innerHTML = '';
+    if(listaHoras) listaHoras.innerHTML = '';
 
-    let totalVal = 0;
+    let totalValPedidos = 0;
     let totalEntregas = 0;
+    let totalValHoras = 0;
+    let totalHoras = 0;
 
-	const dataSelecionada = document.getElementById('loja-data').value;
+    const dataSelecionada = document.getElementById('loja-data').value;
+    const hoje = new Date();
+    const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+
+    // --- 1. RENDERIZAR PEDIDOS ---
     const pedidosDoDia = pedidosLoja.filter(p => {
-        const hoje = new Date();
-        const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
         const dataPedido = p.data || hojeStr;
         return dataPedido === dataSelecionada;
     });
 
-    if (pedidosDoDia.length === 0) { // <-- Mude pedidosLoja.length para pedidosDoDia.length
+    if (pedidosDoDia.length === 0) {
         lista.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Nenhuma entrega encontrada para esta data.</p>';
-        document.getElementById('loja-total-valor').innerText = 'R$ 0,00';
-        document.getElementById('loja-total-entregas').innerText = '0';
-        return;
-	}
+    } else {
+        pedidosDoDia.forEach(p => {
+            const gorjeta = p.gorjeta || 0;
+            const valorFinal = p.valor + gorjeta;
+            totalValPedidos += valorFinal;
+            totalEntregas++;
 
-    pedidosDoDia.forEach(p => {
-        // Puxa a gorjeta se existir, senão considera 0
-        const gorjeta = p.gorjeta || 0;
-        const valorFinal = p.valor + gorjeta;
-
-        totalVal += valorFinal;
-        totalEntregas++;
-
-        const appCores = {
-            'Ifood': '#ea1d2c',
-            'Delivery Much': '#ff7a00',
-            'ComprAqui': '#0097ff',
-			'Whatsapp': '#2e7e4e',
-			'Pedidos 10': '#ffe412',
-			'Aiq Fome': '#620c84',
-            'Outros': '#888'
-        };
-
-        const item = document.createElement('div');
-        item.className = `pedido-item ${p.entregue ? 'entregue' : ''}`;
-        
-        item.innerHTML = `
-            <div class="pedido-info">
-                <div class="pedido-endereco">${p.endereco}</div>
-                <div class="pedido-detalhes">
-                    <span class="badge" style="background-color: ${appCores[p.app] || '#888'}">${p.app}</span>
-                    <span>🛵 R$ ${p.valor.toFixed(2).replace('.', ',')}</span>
-                    ${gorjeta > 0 ? `<span style="color: var(--accent); font-weight: bold;">+ Gorjeta: R$ ${gorjeta.toFixed(2).replace('.', ',')}</span>` : ''}
-                    <span>💳 ${p.pagamento}</span>
+			const appCores = {
+            	'Ifood': '#ea1d2c',
+            	'Delivery Much': '#ff7a00',
+            	'ComprAqui': '#0097ff',
+				'Whatsapp': '#2e7e4e',
+				'Pedidos 10': '#ffe412',
+				'Aiq Fome': '#620c84',
+            	'Outros': '#888'
+        	};
+			
+            const item = document.createElement('div');
+            item.className = `pedido-item ${p.entregue ? 'entregue' : ''}`;
+            item.innerHTML = `
+                <div class="pedido-info">
+                    <div class="pedido-endereco">${p.endereco}</div>
+                    <div class="pedido-detalhes">
+                        <span class="badge" style="background-color: ${appCores[p.app] || '#888'}">${p.app}</span>
+                        <span>🛵 R$ ${p.valor.toFixed(2).replace('.', ',')}</span>
+                        ${gorjeta > 0 ? `<span style="color: var(--accent); font-weight: bold;">+ Gorjeta: R$ ${gorjeta.toFixed(2).replace('.', ',')}</span>` : ''}
+                        <span>💳 ${p.pagamento}</span>
+                    </div>
                 </div>
-            </div>
-            
-        `;
-        lista.appendChild(item);
-    });
+            `;
+            lista.appendChild(item);
+        });
+    }
 
-    document.getElementById('loja-total-valor').innerText = `R$ ${totalVal.toFixed(2).replace('.', ',')}`;
-    document.getElementById('loja-total-entregas').innerText = totalEntregas;
+    // --- 2. RENDERIZAR HORAS BAR ---
+    const horasDoDia = horasLoja.filter(h => h.data === dataSelecionada);
+
+    if (horasDoDia.length > 0 && listaHoras) {
+        document.getElementById('titulo-horas-loja').style.display = 'block';
+        horasDoDia.forEach(h => {
+            // Mantém compatibilidade com aquele registro antigo que você testou com "5.05"
+            const isAntigo = typeof h.horas === 'number';
+            const horasDisplay = isAntigo ? `${h.horas}h` : h.horas;
+            const decimalParaSoma = isAntigo ? h.horas : (h.horasDecimal || 0);
+
+            totalHoras += decimalParaSoma;
+            totalValHoras += h.total;
+
+            const item = document.createElement('div');
+            item.className = 'pedido-item';
+            item.style.borderLeft = '5px solid var(--warning)';
+            item.innerHTML = `
+                <div class="pedido-info">
+                    <div class="pedido-endereco" style="color: var(--warning);">🍻 Turno Balcão/Bar</div>
+                    <div class="pedido-detalhes">
+                        <span>⏱️ ${horasDisplay}</span>
+                        <span>💵 R$ ${h.valorHora.toFixed(2).replace('.', ',')}/h</span>
+                    </div>
+                </div>
+                <div class="pedido-acoes" style="justify-content: center; align-items: center; font-size: 1.2rem; font-weight: bold; color: var(--warning);">
+                    R$ ${h.total.toFixed(2).replace('.', ',')}
+                </div>
+            `;
+            listaHoras.appendChild(item);
+        });
+
+    } else if(document.getElementById('titulo-horas-loja')) {
+        document.getElementById('titulo-horas-loja').style.display = 'none';
+    }
+
+    // --- 3. ATUALIZAR BARRA INFERIOR COM A SOMA DOS DOIS ---
+    const grandTotal = totalValPedidos + totalValHoras;
+    
+    // Converte o total decimal de volta para relógio (ex: vira 5h 5m)
+    const horasInt = Math.floor(totalHoras);
+    const minInt = Math.round((totalHoras - horasInt) * 60);
+    const textoRodapeHoras = totalHoras > 0 ? ` | ${horasInt}h ${minInt}m` : '';
+
+    document.getElementById('loja-total-entregas').innerText = `${totalEntregas}${textoRodapeHoras}`;
+    document.getElementById('loja-total-valor').innerText = `R$ ${grandTotal.toFixed(2).replace('.', ',')}`;
+
 }
+
 
 // Função para a loja adicionar a gorjeta
 async function adicionarGorjeta(firebaseId) {
@@ -242,6 +298,14 @@ function abrirRelatorios() {
             totalValorMes += parseFloat(p.valor || 0); 
         }
     });
+	// --- NOVO: SOMAR AS HORAS TRABALHADAS NO MÊS ---
+    // NOTA: No loja.js troque 'horasTrabalhadas' por 'horasLoja'
+    horasLoja.forEach(h => {
+        if (h.data && h.data.startsWith(filtroMes)) {
+            totalValorMes += parseFloat(h.total || 0); 
+        }
+    });
+	
 
     // Atualiza o HTML
     document.getElementById('relatorio-mes-texto').innerText = `${mesAtual}/${anoAtual}`;

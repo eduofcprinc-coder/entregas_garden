@@ -26,4 +26,4 @@
 	font-size: 1rem;
 }
 
-body { padding-bottom: 90px; font-size: 0.8rem;} /* Dá espaço para a barra inferior não cobrir os pedidos */
+body { padding-bottom: 90px; } /* Dá espaço para a barra inferior não cobrir os pedidos */

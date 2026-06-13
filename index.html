@@ -33,6 +33,12 @@
                 <span class="material-icons-round">history</span>
                 Relatórios
             </li>
+
+			<li class="menu-item" onclick="abrirModalHoras()">
+            	<span class="material-icons-round">sports_bar</span>
+            	Horas Bar
+			</li>
+			
         </ul>
         
         <div class="menu-footer">
@@ -177,6 +183,39 @@
             <button class="btn-action" onclick="fecharModalRelatorios()" style="width: 100%; background-color: #555; color: white;">FECHAR</button>
         </div>
 	</div>
+
+	<div id="modal-horas" class="modal-overlay">
+        <div class="modal-body">
+            <h3 style="color: var(--warning); margin-bottom: 15px;">⏳ Horas Bar</h3>
+            
+            <div class="input-row">
+                <label style="color: var(--text-secondary); font-size: 0.9rem;">Data do Turno:</label>
+                <input type="date" id="horas-data" onchange="renderizarHorasMotoboy()" style="width: 100%; padding: 10px; border-radius: 6px; background: #2c2c2c; color: white; border: 1px solid #444;">
+            </div>
+
+            <div class="input-row split">
+                <div>
+					<label style="color: var(--text-secondary); font-size: 0.9rem;">Tempo Feito:</label>
+					<input type="time" id="horas-qtd" oninput="calcularTotalHoras()" style="width: 100%; padding: 10px; border-radius: 6px; background: #2c2c2c; color: white; border: 1px solid #444; font-family: sans-serif;">	
+				</div>
+                <div>
+                    <label style="color: var(--text-secondary); font-size: 0.9rem;">Valor/Hora (R$):</label>
+                    <input type="number" id="horas-valor" oninput="calcularTotalHoras()" placeholder="Ex: 10" step="0.5" style="width: 100%; padding: 10px; border-radius: 6px; background: #2c2c2c; color: white; border: 1px solid #444;">
+                </div>
+            </div>
+
+            <div style="background: #1e1e1e; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; border: 1px dashed var(--warning);">
+                <span style="color: var(--text-secondary);">Total do Turno: </span><br>
+                <strong id="horas-total-display" style="font-size: 1.8rem; color: var(--warning);">R$ 0,00</strong>
+            </div>
+
+            <button class="btn-action" style="background-color: var(--warning); color: black; width: 100%; margin-bottom: 10px;" onclick="adicionarHoras()">SALVAR HORAS</button>
+            <button class="btn-modal-action btn-close" onclick="fecharModalHoras()" style="width: 100%;">Fechar</button>
+
+            <div id="lista-horas-motoboy" style="margin-top: 20px; max-height: 150px; overflow-y: auto;"></div>
+        </div>
+	</div>
+	
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>

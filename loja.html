@@ -53,11 +53,15 @@
         <p style="text-align: center; color: var(--text-secondary);">Carregando entregas...</p>
     </div>
 
+	<h3 id="titulo-horas-loja" style="text-align: center; color: var(--warning); display: none; margin-top: 25px; margin-bottom: 10px;">⏳ Turno no Bar</h3>
+    <div id="lista-horas-loja" class="lista-pedidos"></div>
+
+
     <div class="loja-dashboard">
         <div class="loja-stats">
             <div class="stat-item">
-                <span class="stat-title">Entregas</span>
-                <span class="stat-value" id="loja-total-entregas">0</span>
+                <span class="stat-title">Entregas | Horas</span>
+                <span class="stat-value" id="loja-total-entregas">0 | 0h</span>
             </div>
             <div class="stat-item">
                 <span class="stat-title">Total a Pagar</span>
@@ -66,6 +70,7 @@
         </div>
         <button class="btn-pagar" onclick="realizarPagamento()">PAGAR</button>
     </div>
+
 
 	<div id="modal-pagamento" class="modal-overlay">
         <div class="modal-body">
