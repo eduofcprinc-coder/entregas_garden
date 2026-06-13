@@ -287,33 +287,73 @@ function abrirRelatorios() {
     const hojeStr = `${anoAtual}-${mesAtual}-${diaAtual}`;
 
     let totalEntregasMes = 0;
-    let totalValorMes = 0;
+    
+    // Objeto para contar as entregas de cada app
+    let contagemApps = {
+        'Ifood': 0,
+        'Delivery Much': 0,
+        'ComprAqui': 0,
+		'Whatsapp': 0,
+		'Pedidos 10': 0,
+		'Aiq Fome': 0,
+        'Outros': 0
+    };
 
-    // ATENÇÃO AQUI: Usa 'pedidosLoja' no painel da loja
+    // Varrer os pedidos procurando os do mês atual
     pedidosLoja.forEach(p => {
         const dataPedido = p.data || hojeStr;
 
         if (dataPedido.startsWith(filtroMes)) {
-            totalEntregasMes++;
-            totalValorMes += parseFloat(p.valor || 0); 
+            totalEntregasMes++; // Soma no total geral
+            
+            // Soma na contagem específica do aplicativo
+            if (p.app && contagemApps[p.app] !== undefined) {
+                contagemApps[p.app]++;
+            } else {
+                contagemApps['Outros']++; // Se tiver escrito errado, cai em Outros
+            }
         }
     });
-	// --- NOVO: SOMAR AS HORAS TRABALHADAS NO MÊS ---
-    // NOTA: No loja.js troque 'horasTrabalhadas' por 'horasLoja'
-    horasLoja.forEach(h => {
-        if (h.data && h.data.startsWith(filtroMes)) {
-            totalValorMes += parseFloat(h.total || 0); 
-        }
-    });
-	
 
-    // Atualiza o HTML
+    // 1. Atualiza os dados principais (Mês e Total de entregas)
     document.getElementById('relatorio-mes-texto').innerText = `${mesAtual}/${anoAtual}`;
     document.getElementById('relatorio-total-entregas').innerText = totalEntregasMes;
-    document.getElementById('relatorio-total-valor').innerText = `R$ ${totalValorMes.toFixed(2).replace('.', ',')}`;
+    
+    // 2. Limpa e desenha os novos cards de aplicativos
+    const divApps = document.getElementById('relatorio-apps-loja');
+    divApps.innerHTML = ''; // Limpa os anteriores para não duplicar
+    
+    // Cores de cada app para ficar bonito
+    const appCores = {
+        'Ifood': '#ea1d2c',
+        'Delivery Much': '#ff7a00',
+        'ComprAqui': '#0097ff',
+		'Whatsapp': '#2e7e4e',
+		'Pedidos 10': '#ffe412',
+		'Aiq Fome': '#620c84',
+        'Outros': '#888'
+    };
 
+    // Cria um mini-card para cada aplicativo que tiver entregas
+    for (let [app, quantidade] of Object.entries(contagemApps)) {
+        // Se a quantidade for maior que zero, ele cria o card na tela
+        if (quantidade > 0) {
+            const card = document.createElement('div');
+            // Estilo do cardzinho com uma borda lateral colorida
+            card.style = `background: #2c2c2c; padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid ${appCores[app]};`;
+            
+            card.innerHTML = `
+                <span style="color: var(--text-secondary); font-size: 0.95rem;">${app}</span>
+                <strong style="color: var(--text-primary); font-size: 1.1rem;">${quantidade}</strong>
+            `;
+            divApps.appendChild(card);
+        }
+    }
+
+    // Exibe o modal
     document.getElementById('modal-relatorios').style.display = 'flex';
 }
+
 
 
 // Fecha o Resumo Mensal

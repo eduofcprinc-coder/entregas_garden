@@ -100,19 +100,18 @@
             <h3 style="color: var(--accent); margin-bottom: 10px;">📊 Desempenho do Mês</h3>
             <p style="color: var(--text-secondary); margin-bottom: 20px;">Mês atual: <strong id="relatorio-mes-texto" style="color: var(--text-primary);">--/----</strong></p>
             
-            <div style="background: #2c2c2c; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                <span style="display: block; font-size: 0.9rem; color: var(--text-secondary);">Entregas Concluídas</span>
+            <div style="background: #2c2c2c; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <span style="display: block; font-size: 0.9rem; color: var(--text-secondary);">Total de Entregas</span>
                 <strong id="relatorio-total-entregas" style="font-size: 1.5rem; color: var(--text-primary);">0</strong>
             </div>
             
-            <div style="background: #2c2c2c; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <span style="display: block; font-size: 0.9rem; color: var(--text-secondary);">Faturamento Bruto</span>
-                <strong id="relatorio-total-valor" style="font-size: 1.8rem; color: var(--accent);">R$ 0,00</strong>
-            </div>
+            <div id="relatorio-apps-loja" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; text-align: left;">
+                </div>
 
             <button class="btn-action" onclick="fecharModalRelatorios()" style="width: 100%; background-color: #555; color: white;">FECHAR</button>
         </div>
-    </div>
+		</div>
+	
 	
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
